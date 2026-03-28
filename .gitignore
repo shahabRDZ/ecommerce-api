@@ -1,16 +1,49 @@
+# Python
 __pycache__/
 *.py[cod]
-*.pyo
-.env
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Virtual environments
 .venv/
 venv/
 env/
-.pytest_cache/
+ENV/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Coverage
 .coverage
+coverage.xml
 htmlcov/
-dist/
-build/
-*.egg-info/
+.pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Docker
+*.tar
+
+# Logs
 *.log
+logs/
+
+# Alembic
+alembic/versions/*.pyc
