@@ -47,3 +47,10 @@ logs/
 
 # Alembic
 alembic/versions/*.pyc
+
+# Docker Compose override
+docker-compose.override.yml
+
+# Archives
+*.tar.gz
+*.zip
