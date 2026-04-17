@@ -47,3 +47,6 @@ logs/
 
 # Alembic
 alembic/versions/*.pyc
+
+# Claude Code
+.claude/
