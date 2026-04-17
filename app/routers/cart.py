@@ -15,7 +15,7 @@ from __future__ import annotations
 import uuid
 from decimal import Decimal
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -272,7 +272,7 @@ async def remove_coupon(
     return result.scalar_one()
 
 
-@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT, response_class=Response)
 async def clear_cart(
     request: Request,
     db: AsyncSession = Depends(get_db),
