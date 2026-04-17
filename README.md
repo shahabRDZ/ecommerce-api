@@ -306,3 +306,14 @@ Frontend                    API                         Stripe
 ## License
 
 MIT © 2025 shahabRDZ
+
+---
+
+## Join the Discussion
+
+Have ideas or experience to share? Check out our open discussions:
+
+- [Payment failure handling: saga vs pending order](https://github.com/shahabRDZ/ecommerce-api/discussions/27)
+- [Cache invalidation for flash sales](https://github.com/shahabRDZ/ecommerce-api/discussions/28)
+
+We'd love to hear your thoughts!
