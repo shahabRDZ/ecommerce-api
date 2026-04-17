@@ -52,7 +52,9 @@ class ProductBase(BaseModel):
     description: Optional[str] = None
     short_description: Optional[str] = Field(None, max_length=500)
     price: Decimal = Field(..., gt=0, max_digits=10, decimal_places=2)
-    compare_at_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
+    compare_at_price: Optional[Decimal] = Field(
+        None, gt=0, max_digits=10, decimal_places=2
+    )
     cost_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
     category_id: Optional[int] = None
     stock_quantity: int = Field(default=0, ge=0)
@@ -90,7 +92,9 @@ class ProductUpdate(BaseModel):
     description: Optional[str] = None
     short_description: Optional[str] = Field(None, max_length=500)
     price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
-    compare_at_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
+    compare_at_price: Optional[Decimal] = Field(
+        None, gt=0, max_digits=10, decimal_places=2
+    )
     cost_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
     category_id: Optional[int] = None
     stock_quantity: Optional[int] = Field(None, ge=0)
