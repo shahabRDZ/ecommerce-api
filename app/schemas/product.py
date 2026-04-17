@@ -51,9 +51,9 @@ class ProductBase(BaseModel):
     slug: str = Field(..., min_length=1, max_length=300, pattern=r"^[a-z0-9-]+$")
     description: Optional[str] = None
     short_description: Optional[str] = Field(None, max_length=500)
-    price: Decimal = Field(..., gt=0, decimal_places=2)
-    compare_at_price: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
-    cost_price: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
+    price: Decimal = Field(..., gt=0, max_digits=10, decimal_places=2)
+    compare_at_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
+    cost_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
     category_id: Optional[int] = None
     stock_quantity: int = Field(default=0, ge=0)
     low_stock_threshold: int = Field(default=10, ge=0)
@@ -89,9 +89,9 @@ class ProductUpdate(BaseModel):
     )
     description: Optional[str] = None
     short_description: Optional[str] = Field(None, max_length=500)
-    price: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
-    compare_at_price: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
-    cost_price: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
+    price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
+    compare_at_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
+    cost_price: Optional[Decimal] = Field(None, gt=0, max_digits=10, decimal_places=2)
     category_id: Optional[int] = None
     stock_quantity: Optional[int] = Field(None, ge=0)
     low_stock_threshold: Optional[int] = Field(None, ge=0)
