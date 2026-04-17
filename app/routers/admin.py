@@ -19,6 +19,7 @@ Orders
 Dashboard
     GET    /admin/dashboard           — high-level metrics
 """
+
 from __future__ import annotations
 
 import math
@@ -35,7 +36,11 @@ from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.models.order import Order
 from app.models.product import Product
-from app.schemas.order import OrderResponse, PaginatedOrderResponse, UpdateOrderStatusRequest
+from app.schemas.order import (
+    OrderResponse,
+    PaginatedOrderResponse,
+    UpdateOrderStatusRequest,
+)
 from app.schemas.product import (
     PaginatedProductResponse,
     ProductCreate,
@@ -50,6 +55,7 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
 # ── Simple stock-adjustment request ──────────────────────────────────────────
+
 
 class StockAdjustmentRequest(BaseModel):
     delta: int = Field(..., description="Positive to add stock, negative to remove")
@@ -68,6 +74,7 @@ class DashboardMetrics(BaseModel):
 
 
 # ── Product management ────────────────────────────────────────────────────────
+
 
 @router.get("/products", response_model=PaginatedProductResponse)
 async def admin_list_products(
@@ -104,15 +111,19 @@ async def admin_list_products(
     ).scalar_one()
 
     products = (
-        await db.execute(
-            select(Product)
-            .where(where_clause)
-            .options(selectinload(Product.category))
-            .order_by(Product.created_at.desc())
-            .offset((page - 1) * page_size)
-            .limit(page_size)
+        (
+            await db.execute(
+                select(Product)
+                .where(where_clause)
+                .options(selectinload(Product.category))
+                .order_by(Product.created_at.desc())
+                .offset((page - 1) * page_size)
+                .limit(page_size)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     total_pages = max(1, math.ceil(total / page_size))
     return PaginatedProductResponse(
@@ -171,7 +182,9 @@ async def admin_update_product(
     )
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
 
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(product, field, value)
@@ -189,7 +202,9 @@ async def admin_delete_product(
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
     product.is_active = False
     await db.flush()
 
@@ -207,7 +222,9 @@ async def admin_adjust_stock(
     )
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
 
     new_qty = product.stock_quantity + payload.delta
     if new_qty < 0:
@@ -218,13 +235,18 @@ async def admin_adjust_stock(
 
     await inventory_service.adjust_stock(
         db,
-        [StockAdjustment(product_id=product_id, delta=payload.delta, reason=payload.reason)],
+        [
+            StockAdjustment(
+                product_id=product_id, delta=payload.delta, reason=payload.reason
+            )
+        ],
     )
     await db.refresh(product)
     return product
 
 
 # ── Order management ──────────────────────────────────────────────────────────
+
 
 @router.get("/orders", response_model=PaginatedOrderResponse)
 async def admin_list_orders(
@@ -249,19 +271,24 @@ async def admin_list_orders(
     ).scalar_one()
 
     orders = (
-        await db.execute(
-            select(Order)
-            .where(where_clause)
-            .options(selectinload(Order.items))
-            .order_by(Order.created_at.desc())
-            .offset((page - 1) * page_size)
-            .limit(page_size)
+        (
+            await db.execute(
+                select(Order)
+                .where(where_clause)
+                .options(selectinload(Order.items))
+                .order_by(Order.created_at.desc())
+                .offset((page - 1) * page_size)
+                .limit(page_size)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     total_pages = max(1, math.ceil(total / page_size))
 
     from app.schemas.order import OrderListItem
+
     items = [
         OrderListItem(
             id=o.id,
@@ -291,13 +318,13 @@ async def admin_get_order(
     db: AsyncSession = Depends(get_db),
 ) -> Order:
     result = await db.execute(
-        select(Order)
-        .where(Order.id == order_id)
-        .options(selectinload(Order.items))
+        select(Order).where(Order.id == order_id).options(selectinload(Order.items))
     )
     order = result.scalar_one_or_none()
     if not order:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
     return order
 
 
@@ -308,13 +335,13 @@ async def admin_update_order_status(
     db: AsyncSession = Depends(get_db),
 ) -> Order:
     result = await db.execute(
-        select(Order)
-        .where(Order.id == order_id)
-        .options(selectinload(Order.items))
+        select(Order).where(Order.id == order_id).options(selectinload(Order.items))
     )
     order = result.scalar_one_or_none()
     if not order:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
 
     now = datetime.now(timezone.utc)
     old_status = order.status
@@ -347,6 +374,7 @@ async def admin_update_order_status(
 
 
 # ── Dashboard metrics ─────────────────────────────────────────────────────────
+
 
 @router.get("/dashboard", response_model=DashboardMetrics)
 async def dashboard(db: AsyncSession = Depends(get_db)) -> DashboardMetrics:
@@ -392,16 +420,13 @@ async def dashboard(db: AsyncSession = Depends(get_db)) -> DashboardMetrics:
 
     pending_orders = (
         await db.execute(
-            select(func.count())
-            .select_from(Order)
-            .where(Order.status == "pending")
+            select(func.count()).select_from(Order).where(Order.status == "pending")
         )
     ).scalar_one()
 
     revenue_today = (
         await db.execute(
-            select(func.coalesce(func.sum(Order.total), 0))
-            .where(
+            select(func.coalesce(func.sum(Order.total), 0)).where(
                 Order.payment_status == "paid",
                 Order.created_at >= today_start,
             )

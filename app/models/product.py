@@ -30,8 +30,12 @@ class Category(Base):
     __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(String(100), nullable=False, unique=True, index=True)
-    slug: Mapped[str] = mapped_column(String(120), nullable=False, unique=True, index=True)
+    name: Mapped[str] = mapped_column(
+        String(100), nullable=False, unique=True, index=True
+    )
+    slug: Mapped[str] = mapped_column(
+        String(120), nullable=False, unique=True, index=True
+    )
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     parent_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True
@@ -50,7 +54,9 @@ class Category(Base):
     children: Mapped[List["Category"]] = relationship(
         "Category", back_populates="parent"
     )
-    products: Mapped[List["Product"]] = relationship("Product", back_populates="category")
+    products: Mapped[List["Product"]] = relationship(
+        "Product", back_populates="category"
+    )
 
     def __repr__(self) -> str:
         return f"<Category id={self.id} name={self.name!r}>"
@@ -67,37 +73,54 @@ class Product(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    sku: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    sku: Mapped[str] = mapped_column(
+        String(100), unique=True, nullable=False, index=True
+    )
     name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    slug: Mapped[str] = mapped_column(String(300), unique=True, nullable=False, index=True)
+    slug: Mapped[str] = mapped_column(
+        String(300), unique=True, nullable=False, index=True
+    )
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     short_description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
-    compare_at_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)
+    compare_at_price: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(12, 2), nullable=True
+    )
     cost_price: Mapped[Optional[Decimal]] = mapped_column(Numeric(12, 2), nullable=True)
 
     category_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True, index=True
+        Integer,
+        ForeignKey("categories.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
 
     stock_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
-    low_stock_threshold: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
+    low_stock_threshold: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=10
+    )
     track_inventory: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     weight: Mapped[Optional[Decimal]] = mapped_column(Numeric(8, 3), nullable=True)
-    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, index=True)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=True, index=True
+    )
     is_featured: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_digital: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # Media
     thumbnail_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    images: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), nullable=True, default=list)
+    images: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True, default=list
+    )
 
     # SEO
     meta_title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     meta_description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    tags: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String), nullable=True, default=list)
+    tags: Mapped[Optional[List[str]]] = mapped_column(
+        ARRAY(String), nullable=True, default=list
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -110,9 +133,15 @@ class Product(Base):
     )
 
     # Relationships
-    category: Mapped[Optional["Category"]] = relationship("Category", back_populates="products")
-    order_items: Mapped[List["OrderItem"]] = relationship("OrderItem", back_populates="product")
-    cart_items: Mapped[List["CartItem"]] = relationship("CartItem", back_populates="product")
+    category: Mapped[Optional["Category"]] = relationship(
+        "Category", back_populates="products"
+    )
+    order_items: Mapped[List["OrderItem"]] = relationship(
+        "OrderItem", back_populates="product"
+    )
+    cart_items: Mapped[List["CartItem"]] = relationship(
+        "CartItem", back_populates="product"
+    )
 
     @property
     def is_in_stock(self) -> bool:
@@ -122,12 +151,16 @@ class Product(Base):
 
     @property
     def is_low_stock(self) -> bool:
-        return self.track_inventory and 0 < self.stock_quantity <= self.low_stock_threshold
+        return (
+            self.track_inventory and 0 < self.stock_quantity <= self.low_stock_threshold
+        )
 
     @property
     def discount_percentage(self) -> Optional[int]:
         if self.compare_at_price and self.compare_at_price > self.price:
-            return int(((self.compare_at_price - self.price) / self.compare_at_price) * 100)
+            return int(
+                ((self.compare_at_price - self.price) / self.compare_at_price) * 100
+            )
         return None
 
     def __repr__(self) -> str:

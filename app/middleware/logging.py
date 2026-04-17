@@ -5,6 +5,7 @@ Logs method, path, status code, duration, and a correlation ID (X-Request-ID)
 for every HTTP request.  Correlation IDs propagate to downstream service calls
 via context-var so they appear in every log line emitted during a request.
 """
+
 from __future__ import annotations
 
 import logging
@@ -50,7 +51,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         try:
             response: Response = await call_next(request)
             status_code = response.status_code
-        except Exception as exc:
+        except Exception:
             logger.exception(
                 "Unhandled exception during request",
                 extra={

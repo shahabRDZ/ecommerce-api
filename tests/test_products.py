@@ -4,10 +4,10 @@ Integration tests — Product catalog endpoints.
 Covers: listing, filtering, searching, pagination, single-item retrieval,
 category creation/listing, and admin create/update/delete.
 """
+
 from __future__ import annotations
 
 import uuid
-from decimal import Decimal
 
 import pytest
 from httpx import AsyncClient
@@ -16,6 +16,7 @@ from app.models.product import Category, Product
 
 
 # ── Health / smoke ─────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_health_check(client: AsyncClient) -> None:
@@ -27,6 +28,7 @@ async def test_health_check(client: AsyncClient) -> None:
 
 
 # ── Product list ───────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_list_products_empty(client: AsyncClient) -> None:
@@ -165,6 +167,7 @@ async def test_list_products_filter_is_featured(
 
 # ── Product detail ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_get_product_by_id(
     client: AsyncClient,
@@ -204,6 +207,7 @@ async def test_get_product_by_slug_not_found(client: AsyncClient) -> None:
 
 # ── Out-of-stock flags ─────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_out_of_stock_product_flags(
     client: AsyncClient,
@@ -217,6 +221,7 @@ async def test_out_of_stock_product_flags(
 
 
 # ── Categories ─────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_list_categories_empty(client: AsyncClient) -> None:
@@ -263,6 +268,7 @@ async def test_create_category_duplicate_slug(
 
 
 # ── Admin product CRUD ─────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_admin_create_product(
@@ -348,8 +354,13 @@ async def test_admin_dashboard_returns_metrics(client: AsyncClient) -> None:
     assert r.status_code == 200
     body = r.json()
     for key in (
-        "total_products", "active_products", "low_stock_products",
-        "out_of_stock_products", "total_orders", "pending_orders",
-        "revenue_today", "revenue_total",
+        "total_products",
+        "active_products",
+        "low_stock_products",
+        "out_of_stock_products",
+        "total_orders",
+        "pending_orders",
+        "revenue_today",
+        "revenue_total",
     ):
         assert key in body

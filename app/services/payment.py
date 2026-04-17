@@ -4,6 +4,7 @@ Payment service — thin abstraction over Stripe.
 All monetary amounts are handled in cents (int) at the Stripe boundary;
 the rest of the application uses Decimal.
 """
+
 from __future__ import annotations
 
 import logging
@@ -21,6 +22,7 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 # ── Value objects ─────────────────────────────────────────────────────────────
+
 
 class PaymentIntent:
     def __init__(
@@ -47,12 +49,14 @@ class RefundResult:
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _to_cents(amount: Decimal) -> int:
     """Convert a Decimal dollar amount to integer cents."""
     return int((amount * 100).quantize(Decimal("1")))
 
 
 # ── Service ───────────────────────────────────────────────────────────────────
+
 
 class PaymentService:
     """

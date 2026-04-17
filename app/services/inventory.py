@@ -4,6 +4,7 @@ Inventory management service.
 Handles stock reservations, releases, and adjustments with Redis-backed
 optimistic locking to prevent overselling under concurrent load.
 """
+
 from __future__ import annotations
 
 import logging

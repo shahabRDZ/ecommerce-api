@@ -7,6 +7,7 @@ GET  /products/slug/{slug}
 GET  /categories        — list active categories
 POST /categories        — create category (admin)
 """
+
 from __future__ import annotations
 
 import math
@@ -36,9 +37,8 @@ category_router = APIRouter(prefix="/categories", tags=["Categories"])
 
 # ── Helper ────────────────────────────────────────────────────────────────────
 
-async def _get_product_or_404(
-    product_id: uuid.UUID, db: AsyncSession
-) -> Product:
+
+async def _get_product_or_404(product_id: uuid.UUID, db: AsyncSession) -> Product:
     result = await db.execute(
         select(Product)
         .where(Product.id == product_id)
@@ -46,11 +46,14 @@ async def _get_product_or_404(
     )
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
     return product
 
 
 # ── Category endpoints ────────────────────────────────────────────────────────
+
 
 @category_router.get("", response_model=List[CategoryResponse])
 async def list_categories(
@@ -73,9 +76,7 @@ async def create_category(
     payload: CategoryCreate,
     db: AsyncSession = Depends(get_db),
 ) -> Category:
-    existing = await db.execute(
-        select(Category).where(Category.slug == payload.slug)
-    )
+    existing = await db.execute(select(Category).where(Category.slug == payload.slug))
     if existing.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -90,6 +91,7 @@ async def create_category(
 
 # ── Product list ──────────────────────────────────────────────────────────────
 
+
 @router.get("", response_model=PaginatedProductResponse)
 async def list_products(
     q: Optional[str] = Query(None, description="Search by name, SKU, or description"),
@@ -98,7 +100,9 @@ async def list_products(
     max_price: Optional[float] = Query(None, ge=0),
     in_stock: Optional[bool] = Query(None),
     is_featured: Optional[bool] = Query(None),
-    sort_by: str = Query(default="created_at", pattern=r"^(created_at|price|name|updated_at)$"),
+    sort_by: str = Query(
+        default="created_at", pattern=r"^(created_at|price|name|updated_at)$"
+    ),
     sort_order: str = Query(default="desc", pattern=r"^(asc|desc)$"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
@@ -162,6 +166,7 @@ async def list_products(
 
 # ── Product detail ────────────────────────────────────────────────────────────
 
+
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(
     product_id: uuid.UUID,
@@ -182,11 +187,14 @@ async def get_product_by_slug(
     )
     product = result.scalar_one_or_none()
     if not product:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Product not found"
+        )
     return product
 
 
 # ── Product mutations (used by admin router too) ──────────────────────────────
+
 
 @router.post(
     "",

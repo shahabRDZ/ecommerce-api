@@ -3,14 +3,13 @@ from __future__ import annotations
 from typing import AsyncGenerator
 
 import redis.asyncio as aioredis
-from sqlalchemy import event, text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase, MappedColumn
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.pool import NullPool
 
 from app.config import settings
@@ -18,12 +17,15 @@ from app.config import settings
 
 # ── SQLAlchemy base ────────────────────────────────────────────────────────────
 
+
 class Base(DeclarativeBase):
     """Shared declarative base for all ORM models."""
+
     pass
 
 
 # ── Async engine ──────────────────────────────────────────────────────────────
+
 
 def _build_engine() -> AsyncEngine:
     kwargs: dict = {
@@ -57,6 +59,7 @@ AsyncSessionLocal = async_sessionmaker(
 
 # ── Dependency ────────────────────────────────────────────────────────────────
 
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """FastAPI dependency: yields a database session and closes it after use."""
     async with AsyncSessionLocal() as session:
@@ -71,6 +74,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 
 # ── Schema lifecycle ──────────────────────────────────────────────────────────
+
 
 async def create_all_tables() -> None:
     """Create all tables (used in development / tests; production uses Alembic)."""

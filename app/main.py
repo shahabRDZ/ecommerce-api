@@ -7,6 +7,7 @@ Start locally:
 Docker:
     docker compose up
 """
+
 from __future__ import annotations
 
 import logging
@@ -97,6 +98,7 @@ limiter = Limiter(
 
 
 # ── Lifespan ──────────────────────────────────────────────────────────────────
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
@@ -189,6 +191,7 @@ app.include_router(admin_router, prefix=API_V1)
 
 
 # ── System endpoints ──────────────────────────────────────────────────────────
+
 
 @app.get("/health", tags=["Health"], include_in_schema=False)
 async def health_check() -> dict:

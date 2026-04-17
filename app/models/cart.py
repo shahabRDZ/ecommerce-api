@@ -101,11 +101,15 @@ class CartItem(Base):
 
     # Relationships
     cart: Mapped["Cart"] = relationship("Cart", back_populates="items")
-    product: Mapped["Product"] = relationship("Product", back_populates="cart_items", lazy="selectin")
+    product: Mapped["Product"] = relationship(
+        "Product", back_populates="cart_items", lazy="selectin"
+    )
 
     @property
     def line_total(self) -> Decimal:
         return self.unit_price * self.quantity
 
     def __repr__(self) -> str:
-        return f"<CartItem id={self.id} product_id={self.product_id} qty={self.quantity}>"
+        return (
+            f"<CartItem id={self.id} product_id={self.product_id} qty={self.quantity}>"
+        )

@@ -4,13 +4,14 @@ Pytest configuration and shared fixtures.
 Uses an in-memory SQLite database (via aiosqlite) so tests run without
 a real PostgreSQL instance.  Redis calls are patched via unittest.mock.
 """
+
 from __future__ import annotations
 
 import asyncio
 import uuid
 from decimal import Decimal
 from typing import AsyncGenerator
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 import pytest_asyncio
@@ -23,6 +24,7 @@ from app.models.product import Category, Product
 
 # ── Event loop ─────────────────────────────────────────────────────────────────
 
+
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.new_event_loop()
@@ -34,7 +36,9 @@ def event_loop():
 
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
-test_engine = create_async_engine(TEST_DB_URL, echo=False, connect_args={"check_same_thread": False})
+test_engine = create_async_engine(
+    TEST_DB_URL, echo=False, connect_args={"check_same_thread": False}
+)
 TestSessionLocal = async_sessionmaker(
     bind=test_engine,
     class_=AsyncSession,
@@ -67,6 +71,7 @@ async def _override_get_db() -> AsyncGenerator[AsyncSession, None]:
 
 # ── Mock Redis ─────────────────────────────────────────────────────────────────
 
+
 @pytest.fixture(autouse=True)
 def mock_redis():
     """Patch get_redis so tests don't need a running Redis instance."""
@@ -75,12 +80,15 @@ def mock_redis():
     mock.hset.return_value = True
     mock.hdel.return_value = 1
     mock.expire.return_value = True
-    with patch("app.database.get_redis", return_value=mock), \
-         patch("app.services.inventory.get_redis", return_value=mock):
+    with (
+        patch("app.database.get_redis", return_value=mock),
+        patch("app.services.inventory.get_redis", return_value=mock),
+    ):
         yield mock
 
 
 # ── HTTP client ────────────────────────────────────────────────────────────────
+
 
 @pytest_asyncio.fixture
 async def client(mock_redis) -> AsyncGenerator[AsyncClient, None]:
@@ -95,6 +103,7 @@ async def client(mock_redis) -> AsyncGenerator[AsyncClient, None]:
 
 # ── DB session convenience fixture ─────────────────────────────────────────────
 
+
 @pytest_asyncio.fixture
 async def db_session() -> AsyncGenerator[AsyncSession, None]:
     async with TestSessionLocal() as session:
@@ -102,6 +111,7 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 # ── Seeded data fixtures ───────────────────────────────────────────────────────
+
 
 @pytest_asyncio.fixture
 async def sample_category(db_session: AsyncSession) -> Category:
@@ -119,7 +129,9 @@ async def sample_category(db_session: AsyncSession) -> Category:
 
 
 @pytest_asyncio.fixture
-async def sample_product(db_session: AsyncSession, sample_category: Category) -> Product:
+async def sample_product(
+    db_session: AsyncSession, sample_category: Category
+) -> Product:
     product = Product(
         id=uuid.uuid4(),
         sku="TEST-001",
@@ -143,7 +155,9 @@ async def sample_product(db_session: AsyncSession, sample_category: Category) ->
 
 
 @pytest_asyncio.fixture
-async def out_of_stock_product(db_session: AsyncSession, sample_category: Category) -> Product:
+async def out_of_stock_product(
+    db_session: AsyncSession, sample_category: Category
+) -> Product:
     product = Product(
         id=uuid.uuid4(),
         sku="TEST-OOS",
@@ -162,7 +176,9 @@ async def out_of_stock_product(db_session: AsyncSession, sample_category: Catego
 
 
 @pytest_asyncio.fixture
-async def multiple_products(db_session: AsyncSession, sample_category: Category) -> list[Product]:
+async def multiple_products(
+    db_session: AsyncSession, sample_category: Category
+) -> list[Product]:
     products = [
         Product(
             id=uuid.uuid4(),

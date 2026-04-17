@@ -5,10 +5,11 @@ from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # ── Category schemas ──────────────────────────────────────────────────────────
+
 
 class CategoryBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
@@ -24,7 +25,9 @@ class CategoryCreate(CategoryBase):
 
 class CategoryUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
-    slug: Optional[str] = Field(None, min_length=1, max_length=120, pattern=r"^[a-z0-9-]+$")
+    slug: Optional[str] = Field(
+        None, min_length=1, max_length=120, pattern=r"^[a-z0-9-]+$"
+    )
     description: Optional[str] = None
     parent_id: Optional[int] = None
     sort_order: Optional[int] = Field(None, ge=0)
@@ -40,6 +43,7 @@ class CategoryResponse(CategoryBase):
 
 
 # ── Product schemas ───────────────────────────────────────────────────────────
+
 
 class ProductBase(BaseModel):
     sku: str = Field(..., min_length=1, max_length=100)
@@ -80,7 +84,9 @@ class ProductCreate(ProductBase):
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=255)
-    slug: Optional[str] = Field(None, min_length=1, max_length=300, pattern=r"^[a-z0-9-]+$")
+    slug: Optional[str] = Field(
+        None, min_length=1, max_length=300, pattern=r"^[a-z0-9-]+$"
+    )
     description: Optional[str] = None
     short_description: Optional[str] = Field(None, max_length=500)
     price: Optional[Decimal] = Field(None, gt=0, decimal_places=2)
@@ -115,6 +121,7 @@ class ProductResponse(ProductBase):
 
 class ProductListResponse(BaseModel):
     """Slim response for list views — omits heavy fields."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
@@ -135,6 +142,7 @@ class ProductListResponse(BaseModel):
 
 # ── Pagination / filter params ────────────────────────────────────────────────
 
+
 class ProductFilterParams(BaseModel):
     q: Optional[str] = Field(None, description="Full-text search query")
     category_id: Optional[int] = None
@@ -143,7 +151,9 @@ class ProductFilterParams(BaseModel):
     in_stock: Optional[bool] = None
     is_featured: Optional[bool] = None
     tags: Optional[List[str]] = Field(None)
-    sort_by: str = Field(default="created_at", pattern=r"^(created_at|price|name|updated_at)$")
+    sort_by: str = Field(
+        default="created_at", pattern=r"^(created_at|price|name|updated_at)$"
+    )
     sort_order: str = Field(default="desc", pattern=r"^(asc|desc)$")
     page: int = Field(default=1, ge=1)
     page_size: int = Field(default=20, ge=1, le=100)

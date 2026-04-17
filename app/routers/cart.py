@@ -9,6 +9,7 @@ POST   /cart/coupon      — apply coupon code
 DELETE /cart/coupon      — remove applied coupon
 DELETE /cart             — clear entire cart
 """
+
 from __future__ import annotations
 
 import uuid
@@ -42,6 +43,7 @@ _MOCK_COUPONS: dict[str, Decimal] = {
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 async def _get_or_create_cart(
     request: Request,
@@ -80,9 +82,7 @@ async def _get_or_create_cart(
     return cart
 
 
-async def _get_cart_item_or_404(
-    item_id: uuid.UUID, cart: Cart
-) -> CartItem:
+async def _get_cart_item_or_404(item_id: uuid.UUID, cart: Cart) -> CartItem:
     for item in cart.items:
         if item.id == item_id:
             return item
@@ -93,6 +93,7 @@ async def _get_cart_item_or_404(
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
+
 
 @router.get("", response_model=CartResponse)
 async def get_cart(

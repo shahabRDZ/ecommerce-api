@@ -7,6 +7,7 @@ GET  /orders/{id}               — single order detail
 POST /orders/{id}/cancel        — customer-initiated cancellation
 POST /webhooks/stripe           — Stripe webhook handler
 """
+
 from __future__ import annotations
 
 import math
@@ -22,7 +23,6 @@ from sqlalchemy.orm import selectinload
 from app.database import get_db
 from app.models.cart import Cart, CartItem
 from app.models.order import Order, OrderItem
-from app.models.product import Product
 from app.schemas.order import (
     OrderResponse,
     PaginatedOrderResponse,
@@ -42,39 +42,47 @@ _FLAT_SHIPPING_COST = Decimal("5.99")
 
 
 def _calculate_shipping(subtotal: Decimal) -> Decimal:
-    return Decimal("0.00") if subtotal >= _FREE_SHIPPING_THRESHOLD else _FLAT_SHIPPING_COST
+    return (
+        Decimal("0.00") if subtotal >= _FREE_SHIPPING_THRESHOLD else _FLAT_SHIPPING_COST
+    )
 
 
 def _generate_order_number() -> str:
-    import random, string
-    return "ORD-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    import random
+    import string
+
+    return "ORD-" + "".join(
+        random.choices(string.ascii_uppercase + string.digits, k=10)
+    )
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 async def _get_order_or_404(
     order_id: uuid.UUID,
     db: AsyncSession,
     user_id: uuid.UUID | None = None,
 ) -> Order:
-    q = (
-        select(Order)
-        .where(Order.id == order_id)
-        .options(selectinload(Order.items))
-    )
+    q = select(Order).where(Order.id == order_id).options(selectinload(Order.items))
     if user_id:
         q = q.where(Order.user_id == user_id)
 
     result = await db.execute(q)
     order = result.scalar_one_or_none()
     if not order:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
     return order
 
 
 # ── Place order ───────────────────────────────────────────────────────────────
 
-@router.post("", response_model=PaymentIntentResponse, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "", response_model=PaymentIntentResponse, status_code=status.HTTP_201_CREATED
+)
 async def place_order(
     payload: PlaceOrderRequest,
     db: AsyncSession = Depends(get_db),
@@ -124,7 +132,7 @@ async def place_order(
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail=f"'{cart_item.product.name}' has insufficient stock "
-                       f"(requested {cart_item.quantity}, available {check.available})",
+                f"(requested {cart_item.quantity}, available {check.available})",
             )
 
     # ── Calculate totals ──────────────────────────────────────────────────────
@@ -210,6 +218,7 @@ async def place_order(
 
 # ── Order history ─────────────────────────────────────────────────────────────
 
+
 @router.get("", response_model=PaginatedOrderResponse)
 async def list_orders(
     page: int = 1,
@@ -226,19 +235,24 @@ async def list_orders(
     ).scalar_one()
 
     orders = (
-        await db.execute(
-            select(Order)
-            .where(Order.user_id == mock_user_id)
-            .options(selectinload(Order.items))
-            .order_by(Order.created_at.desc())
-            .offset((page - 1) * page_size)
-            .limit(page_size)
+        (
+            await db.execute(
+                select(Order)
+                .where(Order.user_id == mock_user_id)
+                .options(selectinload(Order.items))
+                .order_by(Order.created_at.desc())
+                .offset((page - 1) * page_size)
+                .limit(page_size)
+            )
         )
-    ).scalars().all()
+        .scalars()
+        .all()
+    )
 
     total_pages = max(1, math.ceil(total / page_size))
 
     from app.schemas.order import OrderListItem
+
     items = [
         OrderListItem(
             id=o.id,
@@ -291,7 +305,9 @@ async def cancel_order(
 
     # Restore stock
     for item in order.items:
-        await inventory_service.restock(db, item.product_id, item.quantity, reason="order_cancelled")
+        await inventory_service.restock(
+            db, item.product_id, item.quantity, reason="order_cancelled"
+        )
 
     # Cancel Stripe intent if present
     if order.payment_intent_id:
@@ -302,6 +318,7 @@ async def cancel_order(
 
 
 # ── Stripe webhook ────────────────────────────────────────────────────────────
+
 
 @webhook_router.post("/stripe", status_code=status.HTTP_200_OK)
 async def stripe_webhook(

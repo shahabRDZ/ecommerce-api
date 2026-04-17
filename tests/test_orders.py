@@ -4,6 +4,7 @@ Integration tests — Order flow endpoints.
 Tests cover: empty-cart guard, order list/detail, cancellation rules,
 admin order management, and the Stripe webhook handler.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -16,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.cart import Cart, CartItem
 from app.models.order import Order
-from app.models.product import Category, Product
+from app.models.product import Product
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -34,9 +35,7 @@ _SHIPPING = {
 }
 
 
-async def _seed_cart_with_product(
-    db_session: AsyncSession, product: Product
-) -> Cart:
+async def _seed_cart_with_product(db_session: AsyncSession, product: Product) -> Cart:
     """Create a cart belonging to the mock user with one item."""
     cart = Cart(user_id=_MOCK_USER_ID)
     db_session.add(cart)
@@ -55,6 +54,7 @@ async def _seed_cart_with_product(
 
 
 # ── Order list / detail ────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_list_orders_empty(client: AsyncClient) -> None:
@@ -83,6 +83,7 @@ async def test_get_order_not_found(client: AsyncClient) -> None:
 
 
 # ── Place order ────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_place_order_empty_cart(client: AsyncClient) -> None:
@@ -179,6 +180,7 @@ async def test_place_order_out_of_stock(
 
 # ── Cancel order ───────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_cancel_order_not_found(client: AsyncClient) -> None:
     r = await client.post(f"/api/v1/orders/{uuid.uuid4()}/cancel")
@@ -213,6 +215,7 @@ async def test_cancel_pending_order(
     await db_session.flush()
 
     from app.models.order import OrderItem as OI
+
     oi = OI(
         order_id=order.id,
         product_id=sample_product.id,
@@ -263,6 +266,7 @@ async def test_cancel_delivered_order_fails(
 
 
 # ── Admin order management ─────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_admin_list_orders(client: AsyncClient) -> None:
@@ -323,6 +327,7 @@ async def test_admin_update_order_status_to_shipped(
 
 # ── Stripe webhook ─────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_stripe_webhook_invalid_signature(client: AsyncClient) -> None:
     r = await client.post(
@@ -382,6 +387,7 @@ async def test_stripe_webhook_payment_succeeded(
     # Reload order and verify status update
     from sqlalchemy import select
     from app.models.order import Order as OrderModel
+
     updated = (
         await db_session.execute(select(OrderModel).where(OrderModel.id == order.id))
     ).scalar_one()

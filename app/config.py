@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import secrets
 from functools import lru_cache
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
-from pydantic import AnyHttpUrl, PostgresDsn, RedisDsn, field_validator
+from pydantic import AnyHttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,7 +25,9 @@ class Settings(BaseSettings):
     ALLOWED_HOSTS: List[AnyHttpUrl] = []
 
     # ── Database ───────────────────────────────────────────────────────────────
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/ecommerce"
+    DATABASE_URL: str = (
+        "postgresql+asyncpg://postgres:password@localhost:5432/ecommerce"
+    )
     DATABASE_POOL_SIZE: int = 10
     DATABASE_MAX_OVERFLOW: int = 20
 

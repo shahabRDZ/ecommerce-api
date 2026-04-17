@@ -67,8 +67,13 @@ class Order(Base):
 
     status: Mapped[str] = mapped_column(
         SAEnum(
-            "pending", "confirmed", "processing", "shipped",
-            "delivered", "cancelled", "refunded",
+            "pending",
+            "confirmed",
+            "processing",
+            "shipped",
+            "delivered",
+            "cancelled",
+            "refunded",
             name="order_status_enum",
         ),
         nullable=False,
@@ -77,8 +82,12 @@ class Order(Base):
     )
     payment_status: Mapped[str] = mapped_column(
         SAEnum(
-            "unpaid", "pending", "paid", "failed",
-            "refunded", "partially_refunded",
+            "unpaid",
+            "pending",
+            "paid",
+            "failed",
+            "refunded",
+            "partially_refunded",
             name="payment_status_enum",
         ),
         nullable=False,
@@ -99,17 +108,25 @@ class Order(Base):
     total: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
 
     # Payment
-    payment_intent_id: Mapped[Optional[str]] = mapped_column(String(200), nullable=True, index=True)
+    payment_intent_id: Mapped[Optional[str]] = mapped_column(
+        String(200), nullable=True, index=True
+    )
     payment_method: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     coupon_code: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
 
     # Shipping address snapshot
     shipping_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
-    shipping_address_line1: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    shipping_address_line2: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    shipping_address_line1: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
+    shipping_address_line2: Mapped[Optional[str]] = mapped_column(
+        String(255), nullable=True
+    )
     shipping_city: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     shipping_state: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    shipping_postal_code: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    shipping_postal_code: Mapped[Optional[str]] = mapped_column(
+        String(20), nullable=True
+    )
     shipping_country: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
 
     # Tracking
@@ -126,10 +143,18 @@ class Order(Base):
         onupdate=func.now(),
         nullable=False,
     )
-    confirmed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    shipped_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    delivered_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-    cancelled_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    confirmed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    shipped_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    delivered_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    cancelled_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="orders")
@@ -141,7 +166,9 @@ class Order(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Order id={self.id} number={self.order_number!r} status={self.status!r}>"
+        return (
+            f"<Order id={self.id} number={self.order_number!r} status={self.status!r}>"
+        )
 
 
 class OrderItem(Base):
@@ -181,6 +208,4 @@ class OrderItem(Base):
         return (self.unit_price * self.quantity) - self.discount_amount
 
     def __repr__(self) -> str:
-        return (
-            f"<OrderItem id={self.id} product_sku={self.product_sku!r} qty={self.quantity}>"
-        )
+        return f"<OrderItem id={self.id} product_sku={self.product_sku!r} qty={self.quantity}>"

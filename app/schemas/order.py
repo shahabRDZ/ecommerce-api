@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 # ── Shared address schema ─────────────────────────────────────────────────────
 
+
 class ShippingAddress(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     address_line1: str = Field(..., min_length=1, max_length=255)
@@ -21,6 +22,7 @@ class ShippingAddress(BaseModel):
 
 
 # ── Request bodies ────────────────────────────────────────────────────────────
+
 
 class PlaceOrderRequest(BaseModel):
     shipping_address: ShippingAddress
@@ -40,6 +42,7 @@ class UpdateOrderStatusRequest(BaseModel):
 
 
 # ── Response schemas ──────────────────────────────────────────────────────────
+
 
 class OrderItemResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -94,6 +97,7 @@ class OrderResponse(BaseModel):
 
 class OrderListItem(BaseModel):
     """Slim representation for the order history list."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
@@ -116,6 +120,7 @@ class PaginatedOrderResponse(BaseModel):
 
 
 # ── Payment intent ────────────────────────────────────────────────────────────
+
 
 class PaymentIntentResponse(BaseModel):
     client_secret: str

@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 # ── Request bodies ────────────────────────────────────────────────────────────
 
+
 class AddToCartRequest(BaseModel):
     product_id: uuid.UUID
     quantity: int = Field(default=1, ge=1, le=999)
@@ -24,6 +25,7 @@ class ApplyCouponRequest(BaseModel):
 
 
 # ── Response schemas ──────────────────────────────────────────────────────────
+
 
 class CartItemProductSnapshot(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -65,5 +67,6 @@ class CartResponse(BaseModel):
 
 class CartSummary(BaseModel):
     """Lightweight summary for headers / mini-cart widgets."""
+
     item_count: int
     total: Decimal
