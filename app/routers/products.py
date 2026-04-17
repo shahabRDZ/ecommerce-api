@@ -247,7 +247,7 @@ async def update_product(
 async def delete_product(
     product_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-) -> None:
+):
     product = await _get_product_or_404(product_id, db)
     # Soft-delete: set is_active = False
     product.is_active = False

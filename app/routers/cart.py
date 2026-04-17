@@ -276,7 +276,7 @@ async def remove_coupon(
 async def clear_cart(
     request: Request,
     db: AsyncSession = Depends(get_db),
-) -> None:
+):
     cart = await _get_or_create_cart(request, db, user_id=None)
     for item in list(cart.items):
         await db.delete(item)

@@ -202,7 +202,7 @@ async def admin_update_product(
 async def admin_delete_product(
     product_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-) -> None:
+):
     result = await db.execute(select(Product).where(Product.id == product_id))
     product = result.scalar_one_or_none()
     if not product:
